@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mnist-train
+spec:
+  template:
+    spec:
+      containers:
+        - name: train
+          image: lukoprych/mnist-train:1.0.3
+          volumeMounts:
+            - name: mnist-data
+              mountPath: /data  
+          command: ["python", "main.py"]
+      restartPolicy: Never
+      volumes:
+        - name: mnist-data
+          persistentVolumeClaim:
+            claimName: mnist-pvc

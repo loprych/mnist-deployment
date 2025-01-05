@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mnist-serve
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mnist-serve
+  template:
+    metadata:
+      labels:
+        app: mnist-serve
+    spec:
+      containers:
+        - name: serve
+          image: lukoprych/mnist-serve:1.0.3
+          volumeMounts:
+            - name: mnist-data
+              mountPath: /data
+          ports:
+            - containerPort: 3002
+          command: ["python", "main.py"]
+      volumes:
+        - name: mnist-data
+          persistentVolumeClaim:
+            claimName: mnist-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mnist-serve-service
+spec:
+  selector:
+    app: mnist-serve
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 3002
+  type: NodePort
